@@ -1,0 +1,26 @@
+include:
+  - project: 'sre/common-pipeline'
+    file: '/ci.yml'
+    ref: 0.14.5
+
+variables:
+  DISABLE_DEPLOY: "true"
+  DISABLE_BUILD: "true"
+
+linters:
+  stage: init
+  image: golangci/golangci-lint:latest
+  script:
+    - golangci-lint run ./...
+
+init-image-release:
+  extends: init-image-registry
+  rules:
+    - if: $CI_COMMIT_TAG
+
+build-release:
+  extends: .build
+  variables:
+    IMAGE_TAG: $CI_COMMIT_TAG
+  rules:
+    - if: $CI_COMMIT_TAG
